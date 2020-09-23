@@ -13,6 +13,14 @@
     "imba",
     "esbuild"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eulores/esimba.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eulores/esimba/issues"
+  },
+  "homepage": "https://github.com/eulores/esimba#readme",
   "devDependencies": {
     "esbuild": "*",
     "imba": "~2.0.0-alpha.96",

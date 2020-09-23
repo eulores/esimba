@@ -1,13 +1,25 @@
 {
   "name": "@eulores/esimba",
-  "version": "0.0.0",
-  "description": "Source files to bundle into esimba package",
+  "version": "0.1.0",
+  "description": "Fast bundler for Imba",
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
+  "keywords": [
+    "imba",
+    "esbuild"
+  ],
   "scripts": {
     "build": "node ./src/bundlesources.js",
     "release": "npx np patch"
   },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/eulores/esimba.git"
+  },
+  "bugs": {
+    "url": "https://github.com/eulores/esimba/issues"
+  },
+  "homepage": "https://github.com/eulores/esimba#readme",
   "np": {
     "tests": false,
     "publish": false,
@@ -16,8 +28,9 @@
   },
   "publishConfig": {
     "access": "public",
-    "registry":"https://registry.npmjs.org/"
+    "registry": "https://registry.npmjs.org/"
   },
+  "dependencies": {},
   "devDependencies": {
     "esbuild": "*",
     "imba": "~2.0.0-alpha.96",
