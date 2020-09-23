@@ -3,7 +3,7 @@
   "description": "Bundle Imba source code with esbuild",
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
-  "version": "0.0.0",
+  "version": "0.2.0",
   "bin": "esimba.js",
   "files": [
     "esimba.js"
