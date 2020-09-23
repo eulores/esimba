@@ -2,7 +2,7 @@
 
 const { build } = require('esbuild')
 
-console.log('start');
+console.log('start bundling esimba sources');
 build({
   bundle:true,
   entryPoints: ['./src/index.js'],
@@ -15,5 +15,4 @@ build({
   loader:{'.jst':'text'},
   external:['imba', 'esbuild', 'lru-cache', 'koa', 'koa-static-resolver', 'koa-easy-ws', 'chokidar', 'esc-exit', 'open', 'commander'],
 }).catch((e) => {console.log(e);process.exit(1);})
-// }).catch(() => process.exit(1))
-console.log('end');
+console.log('end bundling esimba sources');

@@ -1,16 +1,26 @@
 {
-  "name": "esimba",
+  "name": "@eulores/esimba",
   "version": "0.0.0",
   "description": "Source files to bundle into esimba package",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 0",
-    "build": "node ./src/bundlesources.js"
-  },
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "node ./src/bundlesources.js",
+    "release": "npx np patch"
+  },
+  "np": {
+    "tests": false,
+    "publish": false,
+    "preview": true,
+    "contents": "dist"
+  },
+  "publishConfig": {
+    "access": "public",
+    "registry":"https://registry.npmjs.org/"
+  },
   "devDependencies": {
     "esbuild": "*",
-    "imba": "*",
-    "np": "^6.5.0"
+    "imba@pre": "*",
+    "np": "*"
   }
 }
