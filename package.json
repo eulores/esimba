@@ -1,0 +1,16 @@
+{
+  "name": "esimba",
+  "version": "0.0.0",
+  "description": "Source files to bundle into esimba package",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 0",
+    "build": "node ./src/bundlesources.js"
+  },
+  "author": "eulores <eulores@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "esbuild": "*",
+    "imba": "*",
+    "np": "^6.5.0"
+  }
+}

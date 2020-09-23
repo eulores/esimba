@@ -1,0 +1,26 @@
+function refreshCSS() {
+	console.log('Refreshing CSS');
+	allElems = document.getElementsByClassName('virtualCSS');
+	for (let i=allElems.length; i>0; --i) {
+		const oldNode = allElems[i-1];
+		const newNode = document.createElement('link');
+		newNode.className = oldNode.className;
+		newNode.id = oldNode.id;
+		newNode.rel = 'stylesheet';
+		newNode.href = '/virtualCSS/'+oldNode.id+'.css?'+new Date().valueOf();
+		newNode.onload = ()=>oldNode.parentNode.removeChild(oldNode); // avoid ugly fouc
+		oldNode.parentNode.appendChild(newNode);
+	}
+}
+if ('WebSocket' in window) {
+	var protocol = window.location.protocol === 'http:' ? 'ws://' : 'wss://';
+	var address = protocol + window.location.host + '/ws';
+	var socket = new WebSocket(address);
+	socket.onmessage = function (msg) {
+		console.log('Received', msg.data);
+		if (msg.data == 'reload') window.location.reload();
+		else if (msg.data == 'refreshcss') refreshCSS();
+	};
+} else {
+	console.error('Upgrade your browser. This Browser does not support WebSocket for Live-Reloading.');
+}
