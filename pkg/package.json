@@ -1,14 +1,9 @@
 {
   "name": "@eulores/esimba",
-  "description": "Bundle Imba source code with esbuild",
+  "version": "0.1.1",
+  "description": "Fast bundler for Imba",
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
-  "version": "0.2.0",
-  "bin": "esimba.js",
-  "files": [
-    "esimba.js"
-  ],
-  "sideEffects": false,
   "keywords": [
     "imba",
     "esbuild"
@@ -21,6 +16,10 @@
     "url": "https://github.com/eulores/esimba/issues"
   },
   "homepage": "https://github.com/eulores/esimba#readme",
+  "bin": "esimba.js",
+  "files": [
+    "esimba.js"
+  ],
   "devDependencies": {
     "esbuild": "*",
     "imba": "~2.0.0-alpha.96",

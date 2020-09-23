@@ -1,5 +1,5 @@
 {
-  "name": "@eulores/esimba-sources",
+  "name": "@eulores/esimba",
   "version": "0.1.1",
   "description": "Fast bundler for Imba",
   "author": "eulores <eulores@gmail.com>",
@@ -8,10 +8,6 @@
     "imba",
     "esbuild"
   ],
-  "scripts": {
-    "build": "node ./src/bundlesources.js",
-    "release": "npx np patch"
-  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/eulores/esimba.git"
@@ -20,9 +16,13 @@
     "url": "https://github.com/eulores/esimba/issues"
   },
   "homepage": "https://github.com/eulores/esimba#readme",
+  "scripts": {
+    "build": "node ./src/bundlesources.js",
+    "release": "npx np patch"
+  },
   "np": {
     "tests": false,
-    "contents": "dist"
+    "contents": "pkg"
   },
   "publishConfig": {
     "access": "public",
