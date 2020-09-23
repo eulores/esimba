@@ -22,7 +22,6 @@
   "homepage": "https://github.com/eulores/esimba#readme",
   "np": {
     "tests": false,
-    "publish": false,
     "contents": "dist"
   },
   "publishConfig": {
