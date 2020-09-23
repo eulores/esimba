@@ -23,7 +23,6 @@
   "np": {
     "tests": false,
     "publish": false,
-    "preview": true,
     "contents": "dist"
   },
   "publishConfig": {
