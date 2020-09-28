@@ -17,21 +17,18 @@
   },
   "homepage": "https://github.com/eulores/esimba#readme",
   "scripts": {
-    "build": "node ./src/bundlesources.js",
-    "release": "npx np patch"
+    "version": "node ./src/npmhelper.js",
+    "build": "node ./src/npmhelper.js",
+    "release": "npx np"
   },
   "np": {
     "tests": false,
     "contents": "pkg"
   },
-  "publishConfig": {
-    "access": "public",
-    "registry": "https://registry.npmjs.org/"
-  },
-  "dependencies": {},
   "devDependencies": {
     "esbuild": "*",
     "imba": "~2.0.0-alpha.96",
-    "np": "*"
+    "np": "*",
+    "version-changelog": "^3.1.1"
   }
 }

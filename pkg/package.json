@@ -20,15 +20,11 @@
   "files": [
     "esimba.js"
   ],
-  "np": {
-    "tests": false,
-    "contents": "pkg"
-  },
   "publishConfig": {
     "access": "public",
     "registry": "https://registry.npmjs.org/"
   },
-  "devDependencies": {
+  "dependencies": {
     "esbuild": "*",
     "imba": "~2.0.0-alpha.96",
     "lru-cache": "^6.0.0",

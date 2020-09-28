@@ -1,4 +1,15 @@
-meta.json
-node_modules
-yarn.lock
-pnpm-lock.yaml
+# use "git clean -ndX" or "git status --ignored" to validate the effects of this file
+
+/*
+!/src/
+!/scripts/
+!/TODO.md
+!/CHANGELOG.md
+!/README.md
+!/package.json
+!/package-lock.json
+!/.gitignore
+
+/pkg/**
+!/pkg/package.json
+
