@@ -19,11 +19,11 @@
   "scripts": {
     "version": "node ./scripts/npmhelper.js",
     "build": "node ./scripts/npmhelper.js",
-    "release": "npx np"
+    "release": "np --contents=pkg"
   },
   "np": {
     "tests": false,
-    "contents": "pkg"
+    "contents": "./pkg"
   },
   "devDependencies": {
     "esbuild": "*",

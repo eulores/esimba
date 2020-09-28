@@ -1,6 +1,6 @@
 {
-  "name": "completed by script",
-  "version": "0.0.0",
+  "name": "@eulores/esimba",
+  "version": "0.2.5",
   "description": "Fast bundler for Imba",
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
