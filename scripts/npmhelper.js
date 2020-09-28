@@ -6,8 +6,8 @@ const {buildSync} = require('esbuild')
 function bundleSources() {
   buildSync({
     bundle:true,
-    entryPoints: ['../src/index.js'],
-    outfile:'./esimba.js',
+    entryPoints: ['./src/index.js'],
+    outfile:'./pkg/esimba.js',
     platform:'node',
     target:'node12',
     format:'cjs',
