@@ -1,6 +1,6 @@
 {
   "name": "@eulores/esimba",
-  "version": "0.1.2",
+  "version": "0.2.0",
   "description": "Fast bundler for Imba",
   "author": "eulores <eulores@gmail.com>",
   "license": "MIT",
@@ -17,8 +17,8 @@
   },
   "homepage": "https://github.com/eulores/esimba#readme",
   "scripts": {
-    "version": "node ./src/npmhelper.js",
-    "build": "node ./src/npmhelper.js",
+    "version": "node ./sscripts/npmhelper.js",
+    "build": "node ./sscripts/npmhelper.js",
     "release": "npx np"
   },
   "np": {
