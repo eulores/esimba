@@ -35,7 +35,7 @@ function cleanupFiles() {
 
 console.log(`Doing ${process.env.npm_lifecycle_event} inside ${process.cwd()}`);
 switch(process.env.npm_lifecycle_event) {
-  case 'version': patchVersion(); break;
+  case 'version': patchVersion(); bundleSources(); copyFiles(); break;
   case 'build': bundleSources(); copyFiles(); break;
   default:
     console.log('This script got called at a different lifecycle event:', process.env.npm_lifecycle_event);
