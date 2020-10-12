@@ -33,10 +33,15 @@ async function bundler(esbuild, bundlerOptions) {
       ...opt.esbuildOptions
     });
   } catch(e) {
+    if(!e.errors) {
+      if(e.message==='Invalid option: "plugins"') {
+        e.errors = [{text:'This version of esbuild does not support plugins.'}]
+      } else throw e;
+    }
     return {
       sources: [],
-      errors: e.errors,
-      warnings: e.warnings,
+      errors: e.errors || [],
+      warnings: e.warnings || [],
     }
   }
   for(k of result.outputFiles||[]) {
