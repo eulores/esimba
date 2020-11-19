@@ -17,8 +17,8 @@ function koaServer(args) {
   }));
   app.use(async (ctx, next) => {
     if(ctx.path.startsWith('/virtualCSS/')) {
-      const fid = basename(ctx.path, '.css');
-      ctx.body = imbaCode.fid[fid].css;
+      const sourceId = basename(ctx.path, '.css');
+      ctx.body = imbaCode.sourceId[sourceId].css;
       ctx.type = 'css';
       return;
     }

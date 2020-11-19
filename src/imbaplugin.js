@@ -1,7 +1,28 @@
-const {readFileSync, statSync} = require('fs');
-const {basename} = require('path');
+// support official plugin interface from esbuild
+
+/*
+Things to fix urgently:
+
+- Error: File not found: dist/.timestamps.json
+
+*/
+
+// add debug package for nicer console.log statements
+// rewrite loadFiles and saveFiles into a main function returning a function for callbacks
+
+// patch `console` to do log full object hierarchy
+const {Console} = require('console');
+const console = new Console({ stdout: process.stdout, stderr: process.stderr, inspectOptions: {depth:null} });
+
+// const path = require('path');
+const {existsSync, promises} = require('fs');
+const {readFile} = promises;
 const {compile} = require('imba/dist/compiler.js');
-import {imbaCode} from './cache';
+// const {compile, identifierForPath} = require('imba/dist/compiler.js');
+const {startService} = require('esbuild')
+// old imports below:
+// const {readFileSync, statSync} = require('fs');
+// import {imbaCode} from './cache';
 
 function convertMsg(code, msg) {
   const loc = msg.region || msg.loc
@@ -25,78 +46,146 @@ const resets = `
 }
 `
 
-function styleWrapper(css, fid) {
-  if(!css) return '';
-  return `
+const embedCSS = (css, sourceId) => css && `
 const newStyle = document.createElement('style');
 newStyle.className = 'virtualCSS';
-newStyle.id = '${fid}';
+newStyle.id = '${sourceId||"undefined"}';
 newStyle.textContent = ${JSON.stringify(css)};
-document.head.appendChild(newStyle);
-`
+document.head.appendChild(newStyle);` || '';
+  
+const embedSourcemap = (map) => map && `
+//# sourceMappingURL=data:application/json;charset=utf-8;base64,` +
+Buffer.from(JSON.stringify(map), 'utf8').toString('base64') || '';
+
+async function XloadFiles(inputPath, options) {
+  // console.log(inputPath);
+  const code = await readFile(inputPath, 'utf8');
+  return {sourceCode:code.replace(/\r\n/g, '\n')};
 }
 
-const imbaPlugin = (pluginOptions = {}) => function(plugin) {
-  plugin.setName('imba');
-  plugin.addLoader(
-    options = { filter: /.imba$/ },
-    callback = ({path}) => {
-      const warnings = [];
-      const stats = statSync(path);
-      const cache = imbaCode.path[path] || {}
-      if (cache.mtimeMs==stats.mtimeMs) {
-        imbaCode.cacheHit++;
-      } else {
-        const code = readFileSync(path, 'utf8').split(/\r\n|\r/).join('\n');
+async function XsaveFiles(inputPath, out, options) {
+  return;
+}
+
+const cache = new Map() // set has get
+
+async function loadFiles(inputPath, options) {
+  // console.log(inputPath);
+  const out = cache.get(inputPath);
+  if (out) return out;
+  const code = await readFile(inputPath, 'utf8');
+  return {sourceCode:code.replace(/\r\n/g, '\n')};
+}
+
+async function saveFiles(inputPath, out, options) {
+  cache.set(inputPath, out);
+  return;
+}
+
+const imbaPlugin = (pluginOptions = {}) => ({
+  name: 'imba',
+  setup(build) {
+    // console.log('inside setup');
+    build.onLoad(
+      options = {filter:/\.imba$/},
+      callback = async ({path:inputPath}) => {
+        // console.log(`running onLoad. args:`);
+        // console.log('path:', inputPath);
+        /*
+        const warnings = [];
+        const stats = statSync(path);
+        const cache = imbaCode.path[path] || {}
+        if (cache.mtimeMs==stats.mtimeMs) {
+          imbaCode.cacheHit++;
+        } else {
+          const code = readFileSync(path, 'utf8').split(/\r\n|\r/).join('\n');
+        */
+
         let options = {
-          target: 'web',
+          sourcePath: inputPath,
+          platform: 'web',
           format: 'esm',
-          es6: true,
-          standalone: false,
-          sourceMap: true,
-          evaling: false,
-          css: 'separate',
-          filename: basename(path),
-          sourceRoot: '',
-          sourcePath: basename(path),
-          targetPath: '',
+          sourcemap: false,
+          styles: 'inline',
+          verbosity: 0,
+          imbaPath: undefined,
+          hmr: false,
+          mode: 'prod',
+          // ENV_NODE: true,
+          // ENV_WEB: false,
+          sourceRoot: '', // should be filled with something!
+          targetPath: '', // should be filled with something!
           ...pluginOptions
-        };
+        }
+        // deprecated options below:
+        options = {
+          ...options,
+          filename: options.sourcePath,
+          target: options.platform,
+          sourceMap: options.sourcemap,
+          css: (options.styles=='extern') && 'separate',
+          standalone: (options.imbaPath===null),
+          evaling: (options.verbosity>=1),
+        }
         let out;
-        try {
-          out = compile(code, options);
-        } catch(e) { return { errors: [convertMsg(e)] } }
-        // delete sourcemap.maps; // debugging leftover?
-        // let { js, sourcemap, css, styles, fid, warnings } = out; // styles contains scss & sass style definitions from multi-line comments (purpose unclear)
-        warnings.push(...out.warnings.map(warning=>convertMsg(warning)));
-        // refresh cache
-        imbaCode.update(out.fid, path);
-        cache.fid = out.fid;
-        cache.mtimeMs = stats.mtimeMs;
-        if(options.sourceMap) {
-          cache.sm = '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
-          Buffer.from(JSON.stringify(out.sourcemap), 'utf8').toString('base64');
-        }
-        if(out.css && !out.styles.inlined) {
-          out.js += `\nimba.inlineStyles(${JSON.stringify(resets)}, 'root');`
-          if(out.css!=cache.css) {
-            cache.css = out.css;
-            imbaCode.styleFlag = true;
+        const cache = await loadFiles(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
+        if (cache.js) {
+          out = cache;
+        } else {
+          try {
+            // console.log('##########',cache.sourceCode);
+            // console.log('.');
+            out = compile(cache.sourceCode, options);
+            // expecting { js, sourceId, warnings, css, sourcemap }
           }
-        } else cache.css = false;
-        if(out.js!=cache.js) {
-          cache.js = out.js;
-          imbaCode.reloadFlag = true;
+          catch(e) {
+            // debug(e);
+            // return { errors: [convertMsg(e)]
+            throw(e); // TODO: do something with the error, like pass it on
+          }
+          /*
+          warnings.push(...out.warnings.map(warning=>convertMsg(warning)));
+          // refresh cache
+          imbaCode.update(out.sourceId, path);
+          cache.sourceId = out.sourceId;
+          cache.mtimeMs = stats.mtimeMs;
+          if(options.sourceMap) {
+            cache.sm = '\n//# sourceMappingURL=data:application/json;charset=utf-8;base64,' +
+            Buffer.from(JSON.stringify(out.sourcemap), 'utf8').toString('base64');
+          }
+          if(out.css && options.styles=='extern') {
+            out.js += `\nimba.styles.register('resets', resets);`
+            if(out.css!=cache.css) {
+              cache.css = out.css;
+              imbaCode.styleFlag = true;
+            }
+          } else cache.css = false;
+          if(out.js!=cache.js) {
+            cache.js = out.js;
+            imbaCode.reloadFlag = true;
+          }
+          imbaCode.path[path] = cache;
+          */
+          if (options.style=='inline') {
+            out.css = false; // reset, as css is already embedded
+          } else {
+            out.js += `\nimba.styles.register('resets', resets);`
+          }
+          if(out.css && out.css!=cache.css) out.cssDirty = true;
+          if(out.js!=cache.js) out.jsDirty = true;
+          await saveFiles(inputPath, out, options); // will be no-op if cache disabled, otherwise also stores compiler output in cache
+        } // end cache miss
+        return {
+          contents: out.js + embedCSS(out.css, out.sourceId) + embedSourcemap(out.sourcemap),
+          loader: 'js',
+          warnings: out.warnings || [],
+          errors: out.errors || [],
+          // contents: cache.js + styleWrapper(cache.css, cache.sourceId) + cache.sm||'',
+          // warnings
         }
-        imbaCode.path[path] = cache;
-      }
-      return {
-        contents: cache.js + styleWrapper(cache.css, cache.fid) + cache.sm||'',
-        loader: 'js',
-        warnings
-      }
-    }
-  ); // end addLoader
-};
+      } // end callback
+    ); // end onLoad
+  }, // end setup
+});
 
 export {imbaPlugin};

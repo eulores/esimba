@@ -24,7 +24,8 @@ async function bundler(esbuild, bundlerOptions) {
       sourcemap: opt.sourcemap,  // [true, false, 'inline', 'external'] - true is like 'external', but also updates JS file to point to external map
       metafile,
       plugins: [
-        imbaPlugin({sourceMap:opt.sourcemap,standalone:opt.solo,css:opt.solo||'separate'}),
+        // check sourcemap option!! Not yet working
+        imbaPlugin({sourcemap:opt.sourcemap,runtime:opt.solo&&'extern'||'inline',styles:opt.solo&&'inline'||'extern'}),
       ],
       outdir: opt.outdir,
       minify: opt.minify,
