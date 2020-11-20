@@ -57,6 +57,8 @@ const embedSourcemap = (map) => map && `
 //# sourceMappingURL=data:application/json;charset=utf-8;base64,` +
 Buffer.from(JSON.stringify(map), 'utf8').toString('base64') || '';
 
+/*
+
 async function XloadFiles(inputPath, options) {
   // console.log(inputPath);
   const code = await readFile(inputPath, 'utf8');
@@ -82,7 +84,31 @@ async function saveFiles(inputPath, out, options) {
   return;
 }
 
-const imbaPlugin = (pluginOptions = {}) => ({
+*/
+
+async function noCache(inputPath, options) {
+  const sourceCode = (await readFile(inputPath, 'utf8')).replace(/\r\n/g, '\n');
+  return {
+    empty: true,
+    sourceCode,
+    inputPath,
+    // sourceId: '',
+    // sourcemap: '',
+    _js: '',
+    get js() { return this._js },
+    set js(jsCcode) { this._js = jsCcode },
+  }
+}
+
+// const cache = await openCache(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
+// if (cache.empty) compile(cache.source)
+// cache.js = out.js // this is a getter method that also compares new code against old, and sets a flag accordingly
+// result = {js:cache.js, css:cache.css}
+
+// const memCache = {}
+
+const imbaPlugin = (pluginOptions = {openCache:noCache} ) => ({
+// const imbaPlugin = (pluginOptions = {pepe='abc', openCache=noCache}) => ({
   name: 'imba',
   setup(build) {
     // console.log('inside setup');
@@ -127,22 +153,42 @@ const imbaPlugin = (pluginOptions = {}) => ({
           standalone: (options.imbaPath===null),
           evaling: (options.verbosity>=1),
         }
-        let out;
-        const cache = await loadFiles(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
-        if (cache.js) {
-          out = cache;
-        } else {
+        let out = {};
+        // const cache = await loadFiles(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
+        const cache = await (pluginOptions.openCache||noCache)(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
+        /*
+        cache.js(out.js) // this function call will compare old code with new code and set a flag if it was modified
+        cache.css(out.css) // -same-
+        return(cache.result)
+
+        Use getter and setter:
+        const cache = await openCache(inputPath, options); // fetches stuff from cache if possible, expecting { sourceCode, js, css, map }
+        if (cache.empty) compile(cache.source)
+        cache.js = out.js // this is a getter method that also compares new code against old, and sets a flag accordingly
+        result = {js:cache.js, css:cache.css}
+        */
+        if (cache.empty) {
           try {
-            // console.log('##########',cache.sourceCode);
-            // console.log('.');
+            console.log('About to compile', cache.inputPath);
             out = compile(cache.sourceCode, options);
             // expecting { js, sourceId, warnings, css, sourcemap }
           }
           catch(e) {
             // debug(e);
+            console.log(e);
             // return { errors: [convertMsg(e)]
             throw(e); // TODO: do something with the error, like pass it on
           }
+
+          if (options.style=='inline') {
+            out.css = false; // reset, as css is already embedded
+          } else {
+            out.js += `\nimba.styles.register('resets', resets);`
+          }
+          cache.js = out.js;
+          cache.css = out.css;
+          cache.sourceId = out.sourceId;
+          cache.sourcemap = out.sourcemap;
           /*
           warnings.push(...out.warnings.map(warning=>convertMsg(warning)));
           // refresh cache
@@ -166,17 +212,13 @@ const imbaPlugin = (pluginOptions = {}) => ({
           }
           imbaCode.path[path] = cache;
           */
-          if (options.style=='inline') {
-            out.css = false; // reset, as css is already embedded
-          } else {
-            out.js += `\nimba.styles.register('resets', resets);`
-          }
-          if(out.css && out.css!=cache.css) out.cssDirty = true;
-          if(out.js!=cache.js) out.jsDirty = true;
-          await saveFiles(inputPath, out, options); // will be no-op if cache disabled, otherwise also stores compiler output in cache
+          // if(out.css && out.css!=cache.css) out.cssDirty = true;
+          // if(out.js!=cache.js) out.jsDirty = true;
+          // await saveFiles(inputPath, out, options); // will be no-op if cache disabled, otherwise also stores compiler output in cache
         } // end cache miss
         return {
-          contents: out.js + embedCSS(out.css, out.sourceId) + embedSourcemap(out.sourcemap),
+          // contents: out.js + embedCSS(out.css, out.sourceId) + embedSourcemap(out.sourcemap),
+          contents: cache.js + embedCSS(cache.css, cache.sourceId) + embedSourcemap(cache.sourcemap),
           loader: 'js',
           warnings: out.warnings || [],
           errors: out.errors || [],

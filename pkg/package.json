@@ -16,7 +16,9 @@
     "url": "https://github.com/eulores/esimba/issues"
   },
   "homepage": "https://github.com/eulores/esimba#readme",
-  "bin": "esimba.js",
+  "bin": {
+    "esimba": "esimba.js"
+  },
   "files": [
     "esimba.js",
     "README.md"
@@ -26,15 +28,15 @@
     "registry": "https://registry.npmjs.org/"
   },
   "dependencies": {
-    "esbuild": "*",
-    "imba": "~2.0.0-alpha.96",
-    "lru-cache": "^6.0.0",
     "chokidar": "^3.4.2",
     "commander": "^6.1.0",
+    "esbuild": "^0.8.11",
     "esc-exit": "^2.0.2",
+    "imba": "^2.0.0-alpha.99",
     "koa": "^2.13.0",
     "koa-easy-ws": "^1.3.0",
     "koa-static-resolver": "^1.0.3",
+    "lru-cache": "^6.0.0",
     "open": "^7.2.1"
   }
 }
