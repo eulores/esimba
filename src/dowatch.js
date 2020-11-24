@@ -11,7 +11,7 @@ import {showErrors, copyAssets} from './utils';
 import {generateTimestamps, checkTimestamps} from './timestamps';
 
 async function dowatch(args) {
-  console.log('dowatch args:', args);
+  // console.log('dowatch args:', args);
   /*
   check timestamps
   do initial compilation
@@ -51,6 +51,8 @@ async function dowatch(args) {
   checkTimestamps(args.outdir); await copyAssets(args.assets, args.outdir); generateTimestamps(args.outdir); // still unsure where to place this code. Should also be inside loop()
 
   const app = koaServer(args);
+  // const app = koaServer();
+  // console.log('PORT:',args.port);
   app.listen(args.port); // !!!! include address as well
 
   process.on('exit', (code) => {
@@ -100,7 +102,8 @@ async function dowatch(args) {
   };
   await loop();
   // await copyAssets(args.assets, args.outdir); // this should be inside loop()
-  open(`http://${args.address}:${args.port}`);
+  // open(`http://${args.address}:${args.port}`);
+  open(`http://localhost:${args.port}`);
   watcher.on('change', loop);
 }
 

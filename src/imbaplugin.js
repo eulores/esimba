@@ -52,7 +52,7 @@ newStyle.className = 'virtualCSS';
 newStyle.id = '${sourceId||"undefined"}';
 newStyle.textContent = ${JSON.stringify(css)};
 document.head.appendChild(newStyle);` || '';
-  
+
 const embedSourcemap = (map) => map && `
 //# sourceMappingURL=data:application/json;charset=utf-8;base64,` +
 Buffer.from(JSON.stringify(map), 'utf8').toString('base64') || '';
@@ -169,7 +169,7 @@ const imbaPlugin = (pluginOptions = {openCache:noCache} ) => ({
         */
         if (cache.empty) {
           try {
-            console.log('About to compile', cache.inputPath);
+            // console.log('About to compile', cache.inputPath);
             out = compile(cache.sourceCode, options);
             // expecting { js, sourceId, warnings, css, sourcemap }
           }
@@ -180,11 +180,9 @@ const imbaPlugin = (pluginOptions = {openCache:noCache} ) => ({
             throw(e); // TODO: do something with the error, like pass it on
           }
 
-          if (options.style=='inline') {
-            out.css = false; // reset, as css is already embedded
-          } else {
-            out.js += `\nimba.styles.register('resets', resets);`
-          }
+          if (options.style=='inline') out.css = false; // reset, as css is already embedded
+          // if (out.css) out.js += `\nimba.styles.register('resets', resets);`
+          if (out.css) out.js += `\nimba.styles.register('resets', ${JSON.stringify(resets)});`
           cache.js = out.js;
           cache.css = out.css;
           cache.sourceId = out.sourceId;
