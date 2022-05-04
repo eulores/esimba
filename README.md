@@ -1,3 +1,6 @@
+## Unmaintained
+This early experiment is now closed, as it is no longer up to date with developments at https://imba.io/
+
 # esimba
 Fast bundler for Imba
 
